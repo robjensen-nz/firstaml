@@ -5,6 +5,55 @@ namespace FirstAML.Tests.Services;
 
 public class ShippingServiceTests
 {
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void ConstructorRejectsMultipleUnlimitedOptions(int count)
+    {
+        var options = Enumerable.Range(0, count)
+            .Select(index => new ShippingOption(ParcelCategory.XL, null, 25m + index));
+
+        var exception = Assert.Throws<ArgumentException>(() => new ShippingService(options));
+
+        Assert.Equal("shippingOptions", exception.ParamName);
+    }
+
+    [Fact]
+    public void SingleUnlimitedOptionCanPriceOversizedParcel()
+    {
+        var service = new ShippingService([
+            new ShippingOption(ParcelCategory.Small, 10, 3m),
+            new ShippingOption(ParcelCategory.XL, null, 25m)
+        ]);
+        var request = new ShipmentRequest([new Parcel(int.MaxValue, 1, 1)], ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
+
+        Assert.Equal(ParcelCategory.XL, Assert.Single(quote.Items).Category);
+        Assert.Equal(25m, quote.TotalCost);
+    }
+
+    [Fact]
+    public void OptionsWithoutUnlimitedSizeCanPriceEligibleParcel()
+    {
+        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 1, 3m)]);
+        var request = new ShipmentRequest([new Parcel(0, 0, 0)], ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
+
+        Assert.Equal(ParcelCategory.Small, Assert.Single(quote.Items).Category);
+        Assert.Equal(3m, quote.TotalCost);
+    }
+
+    [Fact]
+    public void OptionsWithoutUnlimitedSizeRejectParcelAtUpperLimit()
+    {
+        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 10, 3m)]);
+        var request = new ShipmentRequest([new Parcel(10, 1, 1)], ShippingSpeed.Normal);
+
+        Assert.Throws<InvalidOperationException>(() => service.CalculateQuote(request));
+    }
+
     public static IEnumerable<object[]> ItemCases => ShipmentTestData.Cases.Select(testCase =>
         new object[] { testCase.Parcels, testCase.Categories, testCase.Costs });
 

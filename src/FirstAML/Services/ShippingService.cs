@@ -20,6 +20,12 @@ public sealed class ShippingService
     {
         ArgumentNullException.ThrowIfNull(shippingOptions);
         _shippingOptions = shippingOptions.ToArray();
+        if (_shippingOptions.Count(option => option.MaxDimensionExclusive is null) > 1)
+        {
+            throw new ArgumentException(
+                "At most one shipping option may have no upper size limit.",
+                nameof(shippingOptions));
+        }
     }
 
     public ShipmentQuote CalculateQuote(ShipmentRequest request)
