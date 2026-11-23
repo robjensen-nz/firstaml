@@ -5,6 +5,28 @@ namespace FirstAML.Tests.Services;
 
 public class ShippingServiceBoundaryTests
 {
+    [Theory]
+    [InlineData(0, 0, 0, ParcelCategory.Small, 3)]
+    [InlineData(0, 1, 1, ParcelCategory.Small, 3)]
+    [InlineData(1, 0, 1, ParcelCategory.Small, 3)]
+    [InlineData(1, 1, 0, ParcelCategory.Small, 3)]
+    [InlineData(0, 10, 0, ParcelCategory.Medium, 8)]
+    [InlineData(0, 0, 50, ParcelCategory.Large, 15)]
+    [InlineData(100, 0, 0, ParcelCategory.XL, 25)]
+    public void CalculateQuoteAcceptsZeroDimensionsAndPricesByLargestDimension(
+        int width, int height, int depth, ParcelCategory expectedCategory, int expectedCost)
+    {
+        var service = new ShippingService();
+        var request = new ShipmentRequest([new Parcel(width, height, depth)], ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
+
+        var item = Assert.Single(quote.Items);
+        Assert.Equal(expectedCategory, item.Category);
+        Assert.Equal((decimal)expectedCost, item.Cost);
+        Assert.Equal((decimal)expectedCost, quote.TotalCost);
+    }
+
     public static TheoryData<int, int, int, ParcelCategory, decimal> BoundaryCases
     {
         get

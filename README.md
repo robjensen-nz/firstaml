@@ -5,6 +5,10 @@ A C# library for calculating the cost of sending an order of parcels, targeting
 
 ## Assumptions
 
+Parcel dimensions cannot be negative. Zero is treated as a very small dimension
+and is allowed for now. A parcel with all dimensions zero is small and costs $3;
+when other dimensions are larger, the largest dimension still determines pricing.
+
 Each parcel is priced individually, and those costs are added together to form
 the shipment subtotal. The shipment is not priced solely using its largest or
 most expensive parcel. For example, a small parcel ($3) and a medium parcel ($8)
