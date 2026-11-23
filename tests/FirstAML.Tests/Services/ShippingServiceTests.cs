@@ -88,6 +88,27 @@ public class ShippingServiceTests
         Assert.Equal(expectedTotalCost, quote.TotalCost);
     }
 
+    [Fact]
+    public void CalculateQuoteSelectsCheapestEligibleOptionRegardlessOfCategoryOrOrder()
+    {
+        // All options fit this parcel. Medium is cheapest, despite Small fitting
+        // more closely and Large appearing first in the supplied options.
+        var parcel = new Parcel(5, 6, 7);
+        var service = new ShippingService([
+            new ShippingOption(ParcelCategory.Large, 100, 15m),
+            new ShippingOption(ParcelCategory.Small, 10, 3m),
+            new ShippingOption(ParcelCategory.Medium, 50, 2m),
+            new ShippingOption(ParcelCategory.XL, null, 25m)
+        ]);
+
+        var quote = service.CalculateQuote([parcel]);
+
+        var item = Assert.Single(quote.Items);
+        Assert.Equal(parcel, item.Parcel);
+        Assert.Equal(ParcelCategory.Medium, item.Category);
+        Assert.Equal(2m, item.Cost);
+    }
+
     private static ShipmentCase CreateFiftyParcelCase()
     {
         (Parcel Parcel, ParcelCategory Category, decimal Cost)[] pattern =
