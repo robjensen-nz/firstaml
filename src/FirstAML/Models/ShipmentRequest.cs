@@ -6,6 +6,12 @@ public sealed class ShipmentRequest
     public ShipmentRequest(IEnumerable<Parcel> parcels, ShippingSpeed shippingSpeed)
     {
         ArgumentNullException.ThrowIfNull(parcels);
+        if (!Enum.IsDefined(shippingSpeed))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(shippingSpeed), shippingSpeed, "Unsupported shipping speed.");
+        }
+
         Parcels = parcels.ToList().AsReadOnly();
         ShippingSpeed = shippingSpeed;
     }

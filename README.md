@@ -24,8 +24,15 @@ var quote = service.CalculateQuote(request);
 `ShipmentRequest` captures the customer's parcels and required shipping speed
 (`ShippingSpeed.Normal` or `ShippingSpeed.Speedy`) before pricing. The service
 returns a `ShipmentQuote` containing the priced parcels and total.
-The selected speed is available as `quote.ShippingSpeed`. Speedy pricing is not
-implemented yet; the speed currently does not change the cost.
+Both models reject undefined shipping speed values with `ArgumentOutOfRangeException`.
+The selected speed is available as `quote.ShippingSpeed`. Speedy shipping adds a
+separate entry in `quote.AdditionalCharges` with description `"Speedy shipping"` and a cost
+equal to the parcel subtotal, doubling `quote.TotalCost`. Individual parcel
+prices in `quote.Items` stay unchanged. For the example above, selecting Speedy
+keeps parcel prices at $3 and $8, adds an $11 charge, and gives a $22 total.
+Normal shipping has an empty `quote.AdditionalCharges` collection.
+An empty speedy shipment has a separate $0 charge and a $0 total.
+`quote.TotalCost` is calculated from the parcel subtotal plus all additional charges.
 
 Dimensions are whole centimetres. The default options are Small (all dimensions
 below 10 cm, $3), Medium (below 50 cm, $8), Large (below 100 cm, $15), and XL
@@ -81,4 +88,8 @@ export PATH="$DOTNET_ROOT:$PATH"
 
 The tests cover loading the library assembly, model calculations, and shipment
 pricing. Shipping service tests use a shared table of empty, single-category, and
-mixed-category shipments, with separate assertions for quoted items and totals.
+mixed-category shipments for both speeds, with separate assertions for quoted
+items, shipping charges, and totals. These include the 50-parcel shipment and
+custom rates where a larger category is cheaper.
+Normal and speedy shipping tests are in `ShippingServiceTests.cs` and
+`SpeedyShippingServiceTests.cs`, with shared cases in `ShipmentTestData.cs`.
