@@ -18,7 +18,7 @@ public sealed class ShipmentQuote
 
         if (shippingSpeed == ShippingSpeed.Speedy)
         {
-            additionalCharges.Add(new ShippingCharge("Speedy shipping", parcelSubtotal));
+            additionalCharges.Add(new ShippingCharge(AdditionalChargeType.SpeedyShipping, parcelSubtotal));
         }
 
         AdditionalCharges = additionalCharges.AsReadOnly();

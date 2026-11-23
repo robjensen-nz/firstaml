@@ -90,7 +90,7 @@ public class SpeedyShippingServiceTests
         var quote = service.CalculateQuote(request);
 
         var charge = Assert.Single(quote.AdditionalCharges);
-        Assert.Equal("Speedy shipping", charge.Description);
+        Assert.Equal(AdditionalChargeType.SpeedyShipping, charge.Type);
         Assert.Equal(expectedCharge, charge.Cost);
     }
 

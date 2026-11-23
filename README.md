@@ -26,8 +26,9 @@ var quote = service.CalculateQuote(request);
 returns a `ShipmentQuote` containing the priced parcels and total.
 Both models reject undefined shipping speed values with `ArgumentOutOfRangeException`.
 The selected speed is available as `quote.ShippingSpeed`. Speedy shipping adds a
-separate entry in `quote.AdditionalCharges` with description `"Speedy shipping"` and a cost
-equal to the parcel subtotal, doubling `quote.TotalCost`. Individual parcel
+separate entry in `quote.AdditionalCharges` with `Type` set to
+`AdditionalChargeType.SpeedyShipping` and a cost equal to the parcel subtotal,
+doubling `quote.TotalCost`. Individual parcel
 prices in `quote.Items` stay unchanged. For the example above, selecting Speedy
 keeps parcel prices at $3 and $8, adds an $11 charge, and gives a $22 total.
 Normal shipping has an empty `quote.AdditionalCharges` collection.
