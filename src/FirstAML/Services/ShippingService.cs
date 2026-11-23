@@ -22,13 +22,13 @@ public sealed class ShippingService
         _shippingOptions = shippingOptions.ToArray();
     }
 
-    public ShipmentQuote CalculateQuote(IEnumerable<Parcel> parcels)
+    public ShipmentQuote CalculateQuote(ShipmentRequest request)
     {
-        ArgumentNullException.ThrowIfNull(parcels);
+        ArgumentNullException.ThrowIfNull(request);
 
         var items = new List<PricedParcel>();
 
-        foreach (var parcel in parcels)
+        foreach (var parcel in request.Parcels)
         {
             var cheapestOption = _shippingOptions
                 .Where(option => option.MaxDimensionExclusive is null
@@ -45,6 +45,6 @@ public sealed class ShippingService
             items.Add(new PricedParcel(parcel, cheapestOption));
         }
 
-        return new ShipmentQuote(items);
+        return new ShipmentQuote(items, request.ShippingSpeed);
     }
 }

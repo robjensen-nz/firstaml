@@ -14,7 +14,7 @@ public class ShipmentQuoteTests
             new Parcel(10, 20, 30),
             new ShippingOption(ParcelCategory.Medium, 50, 8m));
 
-        var quote = new ShipmentQuote([small, medium]);
+        var quote = new ShipmentQuote([small, medium], ShippingSpeed.Normal);
 
         Assert.Collection(quote.Items,
             item =>
@@ -35,7 +35,7 @@ public class ShipmentQuoteTests
     [Fact]
     public void EmptyQuoteHasZeroTotalCost()
     {
-        var quote = new ShipmentQuote([]);
+        var quote = new ShipmentQuote([], ShippingSpeed.Normal);
 
         Assert.Empty(quote.Items);
         Assert.Equal(0m, quote.TotalCost);
@@ -48,7 +48,7 @@ public class ShipmentQuoteTests
             new Parcel(5, 6, 7),
             new ShippingOption(ParcelCategory.Small, 10, 3m));
         var items = new List<PricedParcel> { item };
-        var quote = new ShipmentQuote(items);
+        var quote = new ShipmentQuote(items, ShippingSpeed.Normal);
 
         items.Clear();
 

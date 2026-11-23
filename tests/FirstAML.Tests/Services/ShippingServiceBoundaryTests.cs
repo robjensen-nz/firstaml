@@ -55,7 +55,9 @@ public class ShippingServiceBoundaryTests
         var parcel = new Parcel(width, height, depth);
         var service = new ShippingService();
 
-        var quote = service.CalculateQuote([parcel]);
+        var request = new ShipmentRequest([parcel], ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
 
         var item = Assert.Single(quote.Items);
         Assert.Equal(parcel, item.Parcel);

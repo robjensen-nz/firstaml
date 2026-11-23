@@ -69,7 +69,9 @@ public class ShippingServiceTests
     {
         var service = new ShippingService();
 
-        var quote = service.CalculateQuote(parcels);
+        var request = new ShipmentRequest(parcels, ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
 
         Assert.Equal(parcels.Length, quote.Items.Count);
         Assert.Equal(parcels, quote.Items.Select(item => item.Parcel));
@@ -83,7 +85,9 @@ public class ShippingServiceTests
     {
         var service = new ShippingService();
 
-        var quote = service.CalculateQuote(parcels);
+        var request = new ShipmentRequest(parcels, ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
 
         Assert.Equal(expectedTotalCost, quote.TotalCost);
     }
@@ -101,12 +105,28 @@ public class ShippingServiceTests
             new ShippingOption(ParcelCategory.XL, null, 25m)
         ]);
 
-        var quote = service.CalculateQuote([parcel]);
+        var request = new ShipmentRequest([parcel], ShippingSpeed.Normal);
+
+        var quote = service.CalculateQuote(request);
 
         var item = Assert.Single(quote.Items);
         Assert.Equal(parcel, item.Parcel);
         Assert.Equal(ParcelCategory.Medium, item.Category);
         Assert.Equal(2m, item.Cost);
+    }
+
+    [Theory]
+    [InlineData(ShippingSpeed.Normal)]
+    [InlineData(ShippingSpeed.Speedy)]
+    public void CalculateQuotePreservesRequestedShippingSpeed(ShippingSpeed shippingSpeed)
+    {
+        var service = new ShippingService();
+
+        var request = new ShipmentRequest([new Parcel(5, 6, 7)], shippingSpeed);
+
+        var quote = service.CalculateQuote(request);
+
+        Assert.Equal(shippingSpeed, quote.ShippingSpeed);
     }
 
     private static ShipmentCase CreateFiftyParcelCase()

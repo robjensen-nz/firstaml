@@ -11,14 +11,21 @@ using FirstAML.Models;
 using FirstAML.Services;
 
 var service = new ShippingService();
-var quote = service.CalculateQuote([
+var request = new ShipmentRequest([
     new Parcel(5, 6, 7),
     new Parcel(10, 20, 30)
-]);
+], ShippingSpeed.Normal);
+var quote = service.CalculateQuote(request);
 
 // quote.Items contains a Small parcel costing $3 and a Medium parcel costing $8.
 // quote.TotalCost is 11m.
 ```
+
+`ShipmentRequest` captures the customer's parcels and required shipping speed
+(`ShippingSpeed.Normal` or `ShippingSpeed.Speedy`) before pricing. The service
+returns a `ShipmentQuote` containing the priced parcels and total.
+The selected speed is available as `quote.ShippingSpeed`. Speedy pricing is not
+implemented yet; the speed currently does not change the cost.
 
 Dimensions are whole centimetres. The default options are Small (all dimensions
 below 10 cm, $3), Medium (below 50 cm, $8), Large (below 100 cm, $15), and XL
