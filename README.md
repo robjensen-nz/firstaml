@@ -5,6 +5,8 @@ A C# library for calculating the cost of sending an order of parcels, targeting
 
 ## Assumptions
 
+We support free shipping if configured in that way
+
 Parcel dimensions cannot be negative. Zero is treated as a very small dimension
 and is allowed for now. A parcel with all dimensions zero is small and costs $3;
 when other dimensions are larger, the largest dimension still determines pricing.

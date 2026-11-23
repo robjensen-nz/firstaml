@@ -6,8 +6,28 @@ namespace FirstAML.Models;
 /// Every dimension must be less than this limit in centimetres.
 /// Null means there is no upper limit.
 /// </param>
-/// <param name="Cost">The delivery cost for this option.</param>
+/// <param name="Cost">The nonnegative delivery cost for this option.</param>
 public sealed record ShippingOption(
     ParcelCategory Category,
     int? MaxDimensionExclusive,
-    decimal Cost);
+    decimal Cost)
+{
+    private decimal _cost = ValidateCost(Cost);
+
+    public decimal Cost
+    {
+        get => _cost;
+        init => _cost = ValidateCost(value);
+    }
+
+    private static decimal ValidateCost(decimal cost)
+    {
+        if (cost < 0m)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(Cost), cost, "Shipping option cost must not be negative.");
+        }
+
+        return cost;
+    }
+}

@@ -77,6 +77,33 @@ public class ShippingServiceTests
         Assert.Equal(ShippingSpeed.Normal, quote.ShippingSpeed);
     }
 
+    [Theory]
+    [InlineData(ShippingSpeed.Normal)]
+    [InlineData(ShippingSpeed.Speedy)]
+    public void CalculateQuoteSelectsFreeEligibleOption(ShippingSpeed shippingSpeed)
+    {
+        var service = new ShippingService([
+            new ShippingOption(ParcelCategory.Small, 10, 3m),
+            new ShippingOption(ParcelCategory.Medium, 50, 0m)
+        ]);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7)], shippingSpeed);
+
+        var quote = service.CalculateQuote(request);
+
+        var item = Assert.Single(quote.Items);
+        Assert.Equal(ParcelCategory.Medium, item.Category);
+        Assert.Equal(0m, item.Cost);
+        Assert.Equal(0m, quote.TotalCost);
+        if (shippingSpeed == ShippingSpeed.Speedy)
+        {
+            Assert.Equal(0m, Assert.Single(quote.AdditionalCharges).Cost);
+        }
+        else
+        {
+            Assert.Empty(quote.AdditionalCharges);
+        }
+    }
+
     [Fact]
     public void NormalShippingHasNoAdditionalCharge()
     {
