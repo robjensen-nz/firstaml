@@ -12,6 +12,11 @@ public sealed class ShipmentQuote
         }
 
         Items = items.ToList().AsReadOnly();
+        if (Items.Any(item => item is null))
+        {
+            throw new ArgumentException("Items must not contain null elements.", nameof(items));
+        }
+
         ShippingSpeed = shippingSpeed;
         var parcelSubtotal = Items.Sum(item => item.Cost);
         var additionalCharges = new List<ShippingCharge>();

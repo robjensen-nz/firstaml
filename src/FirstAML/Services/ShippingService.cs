@@ -20,6 +20,12 @@ public sealed class ShippingService
     {
         ArgumentNullException.ThrowIfNull(shippingOptions);
         _shippingOptions = shippingOptions.ToArray();
+        if (_shippingOptions.Any(option => option is null))
+        {
+            throw new ArgumentException(
+                "Shipping options must not contain null elements.", nameof(shippingOptions));
+        }
+
         if (_shippingOptions.Count(option => option.MaxDimensionExclusive is null) > 1)
         {
             throw new ArgumentException(

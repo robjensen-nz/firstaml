@@ -5,6 +5,33 @@ namespace FirstAML.Tests.Models;
 public class ShipmentQuoteTests
 {
     [Theory]
+    [InlineData(1, 0)]
+    [InlineData(3, 0)]
+    [InlineData(3, 1)]
+    [InlineData(3, 2)]
+    public void ConstructorRejectsNullItemElements(int count, int nullIndex)
+    {
+        var item = new PricedParcel(
+            new Parcel(1, 1, 1), new ShippingOption(ParcelCategory.Small, 10, 3m));
+        var items = Enumerable.Range(0, count)
+            .Select(index => index == nullIndex ? null! : item);
+
+        var exception = Assert.Throws<ArgumentException>(
+            () => new ShipmentQuote(items, ShippingSpeed.Normal));
+
+        Assert.Equal("items", exception.ParamName);
+    }
+
+    [Fact]
+    public void ConstructorRejectsNullCollection()
+    {
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => new ShipmentQuote(null!, ShippingSpeed.Normal));
+
+        Assert.Equal("items", exception.ParamName);
+    }
+
+    [Theory]
     [InlineData(-1)] // Below the defined values.
     [InlineData(2)] // Immediately above Speedy.
     [InlineData(99)] // An arbitrary undefined value.

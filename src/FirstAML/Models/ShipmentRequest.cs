@@ -13,6 +13,11 @@ public sealed class ShipmentRequest
         }
 
         Parcels = parcels.ToList().AsReadOnly();
+        if (Parcels.Any(parcel => parcel is null))
+        {
+            throw new ArgumentException("Parcels must not contain null elements.", nameof(parcels));
+        }
+
         ShippingSpeed = shippingSpeed;
     }
 

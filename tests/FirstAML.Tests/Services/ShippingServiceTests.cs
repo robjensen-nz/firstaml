@@ -6,6 +6,42 @@ namespace FirstAML.Tests.Services;
 public class ShippingServiceTests
 {
     [Theory]
+    [InlineData(1, 0)]
+    [InlineData(3, 0)]
+    [InlineData(3, 1)]
+    [InlineData(3, 2)]
+    public void ConstructorRejectsNullOptionElements(int count, int nullIndex)
+    {
+        var options = Enumerable.Range(0, count)
+            .Select(index => index == nullIndex
+                ? null!
+                : new ShippingOption(ParcelCategory.Small, 10, 3m));
+
+        var exception = Assert.Throws<ArgumentException>(() => new ShippingService(options));
+
+        Assert.Equal("shippingOptions", exception.ParamName);
+    }
+
+    [Fact]
+    public void ConstructorRejectsNullCollection()
+    {
+        var exception = Assert.Throws<ArgumentNullException>(() => new ShippingService(null!));
+
+        Assert.Equal("shippingOptions", exception.ParamName);
+    }
+
+    [Fact]
+    public void EmptyOptionsCanQuoteEmptyShipment()
+    {
+        var service = new ShippingService([]);
+
+        var quote = service.CalculateQuote(new ShipmentRequest([], ShippingSpeed.Normal));
+
+        Assert.Empty(quote.Items);
+        Assert.Equal(0m, quote.TotalCost);
+    }
+
+    [Theory]
     [InlineData(2)]
     [InlineData(3)]
     public void ConstructorRejectsMultipleUnlimitedOptions(int count)
