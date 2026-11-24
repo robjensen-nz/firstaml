@@ -5,6 +5,64 @@ namespace FirstAML.Tests.Models;
 public class ShippingOptionTests
 {
     [Theory]
+    [InlineData(-1)]
+    [InlineData(4)]
+    [InlineData(99)]
+    public void ConstructorRejectsUndefinedCategory(int value)
+    {
+        var category = (ParcelCategory)value;
+
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(
+            () => new ShippingOption(category, 10, 3m));
+
+        Assert.Equal("Category", exception.ParamName);
+        Assert.Equal(category, exception.ActualValue);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(4)]
+    [InlineData(99)]
+    public void WithExpressionRejectsUndefinedCategory(int value)
+    {
+        var category = (ParcelCategory)value;
+        var option = new ShippingOption(ParcelCategory.Small, 10, 3m);
+
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(
+            () => option with { Category = category });
+
+        Assert.Equal("Category", exception.ParamName);
+        Assert.Equal(category, exception.ActualValue);
+    }
+
+    [Theory]
+    [InlineData(ParcelCategory.Small)]
+    [InlineData(ParcelCategory.Medium)]
+    [InlineData(ParcelCategory.Large)]
+    [InlineData(ParcelCategory.XL)]
+    public void ConstructorAcceptsDefinedCategory(ParcelCategory category)
+    {
+        var option = new ShippingOption(category, 10, 3m);
+
+        Assert.Equal(category, option.Category);
+    }
+
+    [Theory]
+    [InlineData(ParcelCategory.Small)]
+    [InlineData(ParcelCategory.Medium)]
+    [InlineData(ParcelCategory.Large)]
+    [InlineData(ParcelCategory.XL)]
+    public void WithExpressionAcceptsDefinedCategory(ParcelCategory category)
+    {
+        var option = new ShippingOption(ParcelCategory.Small, 10, 3m);
+
+        var updated = option with { Category = category };
+
+        Assert.Equal(category, updated.Category);
+        Assert.Equal(ParcelCategory.Small, option.Category);
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(int.MinValue)]

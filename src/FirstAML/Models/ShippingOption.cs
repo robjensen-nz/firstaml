@@ -12,8 +12,15 @@ public sealed record ShippingOption(
     int? MaxDimensionExclusive,
     decimal Cost)
 {
+    private ParcelCategory _category = ValidateCategory(Category);
     private int? _maxDimensionExclusive = ValidateSizeLimit(MaxDimensionExclusive);
     private decimal _cost = ValidateCost(Cost);
+
+    public ParcelCategory Category
+    {
+        get => _category;
+        init => _category = ValidateCategory(value);
+    }
 
     public int? MaxDimensionExclusive
     {
@@ -25,6 +32,17 @@ public sealed record ShippingOption(
     {
         get => _cost;
         init => _cost = ValidateCost(value);
+    }
+
+    private static ParcelCategory ValidateCategory(ParcelCategory category)
+    {
+        if (!Enum.IsDefined(category))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(Category), category, "Unsupported parcel category.");
+        }
+
+        return category;
     }
 
     private static int? ValidateSizeLimit(int? sizeLimit)
