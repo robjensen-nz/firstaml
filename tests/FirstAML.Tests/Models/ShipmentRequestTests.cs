@@ -12,7 +12,7 @@ public class ShipmentRequestTests
     public void ConstructorRejectsNullParcelElements(int count, int nullIndex)
     {
         var parcels = Enumerable.Range(0, count)
-            .Select(index => index == nullIndex ? null! : new Parcel(1, 1, 1));
+            .Select(index => index == nullIndex ? null! : new Parcel(1, 1, 1, 0));
 
         var exception = Assert.Throws<ArgumentException>(
             () => new ShipmentRequest(parcels, ShippingSpeed.Normal));

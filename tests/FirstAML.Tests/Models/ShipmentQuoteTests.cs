@@ -12,7 +12,7 @@ public class ShipmentQuoteTests
     public void ConstructorRejectsNullItemElements(int count, int nullIndex)
     {
         var item = new PricedParcel(
-            new Parcel(1, 1, 1), new ShippingOption(ParcelCategory.Small, 10, 3m));
+            new Parcel(1, 1, 1, 0), new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m));
         var items = Enumerable.Range(0, count)
             .Select(index => index == nullIndex ? null! : item);
 
@@ -50,11 +50,11 @@ public class ShipmentQuoteTests
     public void QuoteIncludesIndividualCategoriesAndCostsAndTheirTotal()
     {
         var small = new PricedParcel(
-            new Parcel(5, 6, 7),
-            new ShippingOption(ParcelCategory.Small, 10, 3m));
+            new Parcel(5, 6, 7, 0),
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m));
         var medium = new PricedParcel(
-            new Parcel(10, 20, 30),
-            new ShippingOption(ParcelCategory.Medium, 50, 8m));
+            new Parcel(10, 20, 30, 0),
+            new ShippingOption(ParcelCategory.Medium, 50, 8m, 3, 2m));
 
         var quote = new ShipmentQuote([small, medium], ShippingSpeed.Normal);
 
@@ -87,8 +87,8 @@ public class ShipmentQuoteTests
     public void ChangingOriginalCollectionDoesNotChangeQuote()
     {
         var item = new PricedParcel(
-            new Parcel(5, 6, 7),
-            new ShippingOption(ParcelCategory.Small, 10, 3m));
+            new Parcel(5, 6, 7, 0),
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m));
         var items = new List<PricedParcel> { item };
         var quote = new ShipmentQuote(items, ShippingSpeed.Normal);
 

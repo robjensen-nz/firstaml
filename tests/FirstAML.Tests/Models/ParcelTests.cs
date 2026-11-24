@@ -5,6 +5,45 @@ namespace FirstAML.Tests.Models;
 public class ParcelTests
 {
     [Theory]
+    [InlineData(-1)]
+    [InlineData(int.MinValue)]
+    public void ConstructorRejectsNegativeWeight(int weightKg)
+    {
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(
+            () => new Parcel(1, 1, 1, weightKg));
+
+        Assert.Equal("WeightKg", exception.ParamName);
+        Assert.Equal(weightKg, exception.ActualValue);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(int.MinValue)]
+    public void WithExpressionRejectsNegativeWeight(int weightKg)
+    {
+        var parcel = new Parcel(1, 1, 1, 0);
+
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(
+            () => parcel with { WeightKg = weightKg });
+
+        Assert.Equal("WeightKg", exception.ParamName);
+        Assert.Equal(weightKg, exception.ActualValue);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(int.MaxValue)]
+    public void ConstructorAndWithExpressionAcceptNonnegativeWeight(int weightKg)
+    {
+        var parcel = new Parcel(1, 1, 1, weightKg);
+        var updated = parcel with { WeightKg = 0 };
+
+        Assert.Equal(weightKg, parcel.WeightKg);
+        Assert.Equal(0, updated.WeightKg);
+    }
+
+    [Theory]
     [InlineData(-1, 1, 1, "Width", -1)]
     [InlineData(1, -1, 1, "Height", -1)]
     [InlineData(1, 1, -1, "Depth", -1)]
@@ -15,7 +54,7 @@ public class ParcelTests
         int width, int height, int depth, string parameterName, int invalidValue)
     {
         var exception = Assert.Throws<ArgumentOutOfRangeException>(
-            () => new Parcel(width, height, depth));
+            () => new Parcel(width, height, depth, 0));
 
         Assert.Equal(parameterName, exception.ParamName);
         Assert.Equal(invalidValue, exception.ActualValue);
@@ -27,7 +66,7 @@ public class ParcelTests
     [InlineData("Depth")]
     public void WithExpressionRejectsNegativeDimensions(string dimension)
     {
-        var parcel = new Parcel(1, 1, 1);
+        var parcel = new Parcel(1, 1, 1, 0);
 
         var exception = Assert.Throws<ArgumentOutOfRangeException>(() => dimension switch
         {
@@ -47,7 +86,7 @@ public class ParcelTests
     public void MaxDimensionReturnsLargestDimensionRegardlessOfOrientation(
         int width, int height, int depth)
     {
-        var parcel = new Parcel(width, height, depth);
+        var parcel = new Parcel(width, height, depth, 0);
 
         Assert.Equal(30, parcel.MaxDimension);
     }

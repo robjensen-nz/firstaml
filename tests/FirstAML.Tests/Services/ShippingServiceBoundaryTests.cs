@@ -17,7 +17,7 @@ public class ShippingServiceBoundaryTests
         int width, int height, int depth, ParcelCategory expectedCategory, int expectedCost)
     {
         var service = new ShippingService();
-        var request = new ShipmentRequest([new Parcel(width, height, depth)], ShippingSpeed.Normal);
+        var request = new ShipmentRequest([new Parcel(width, height, depth, 0)], ShippingSpeed.Normal);
 
         var quote = service.CalculateQuote(request);
 
@@ -74,7 +74,7 @@ public class ShippingServiceBoundaryTests
     public void CalculateQuoteUsesExclusiveDimensionCutoffs(
         int width, int height, int depth, ParcelCategory expectedCategory, decimal expectedCost)
     {
-        var parcel = new Parcel(width, height, depth);
+        var parcel = new Parcel(width, height, depth, 0);
         var service = new ShippingService();
 
         var request = new ShipmentRequest([parcel], ShippingSpeed.Normal);

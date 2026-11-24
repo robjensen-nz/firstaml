@@ -50,12 +50,12 @@ public class SpeedyShippingServiceTests
     {
         // All options fit this parcel. Medium is cheapest, despite Small fitting
         // more closely and Large appearing first in the supplied options.
-        var parcel = new Parcel(5, 6, 7);
+        var parcel = new Parcel(5, 6, 7, 0);
         var service = new ShippingService([
-            new ShippingOption(ParcelCategory.Large, 100, 15m),
-            new ShippingOption(ParcelCategory.Small, 10, 3m),
-            new ShippingOption(ParcelCategory.Medium, 50, 2m),
-            new ShippingOption(ParcelCategory.XL, null, 25m)
+            new ShippingOption(ParcelCategory.Large, 100, 15m, 6, 2m),
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m),
+            new ShippingOption(ParcelCategory.Medium, 50, 2m, 3, 2m),
+            new ShippingOption(ParcelCategory.XL, null, 25m, 10, 2m)
         ]);
 
         var request = new ShipmentRequest([parcel], ShippingSpeed.Speedy);
@@ -73,7 +73,7 @@ public class SpeedyShippingServiceTests
     {
         var service = new ShippingService();
 
-        var request = new ShipmentRequest([new Parcel(5, 6, 7)], ShippingSpeed.Speedy);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7, 0)], ShippingSpeed.Speedy);
 
         var quote = service.CalculateQuote(request);
 
@@ -98,10 +98,10 @@ public class SpeedyShippingServiceTests
     public void SpeedyChargeUsesTheSelectedCustomRate()
     {
         var service = new ShippingService([
-            new ShippingOption(ParcelCategory.Small, 10, 3m),
-            new ShippingOption(ParcelCategory.Medium, 50, 2m)
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m),
+            new ShippingOption(ParcelCategory.Medium, 50, 2m, 3, 2m)
         ]);
-        var request = new ShipmentRequest([new Parcel(5, 6, 7)], ShippingSpeed.Speedy);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7, 0)], ShippingSpeed.Speedy);
 
         var quote = service.CalculateQuote(request);
 

@@ -15,7 +15,7 @@ public class ShippingServiceTests
         var options = Enumerable.Range(0, count)
             .Select(index => index == nullIndex
                 ? null!
-                : new ShippingOption(ParcelCategory.Small, 10, 3m));
+                : new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m));
 
         var exception = Assert.Throws<ArgumentException>(() => new ShippingService(options));
 
@@ -47,7 +47,7 @@ public class ShippingServiceTests
     public void ConstructorRejectsMultipleUnlimitedOptions(int count)
     {
         var options = Enumerable.Range(0, count)
-            .Select(index => new ShippingOption(ParcelCategory.XL, null, 25m + index));
+            .Select(index => new ShippingOption(ParcelCategory.XL, null, 25m + index, 10, 2m));
 
         var exception = Assert.Throws<ArgumentException>(() => new ShippingService(options));
 
@@ -58,10 +58,10 @@ public class ShippingServiceTests
     public void SingleUnlimitedOptionCanPriceOversizedParcel()
     {
         var service = new ShippingService([
-            new ShippingOption(ParcelCategory.Small, 10, 3m),
-            new ShippingOption(ParcelCategory.XL, null, 25m)
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m),
+            new ShippingOption(ParcelCategory.XL, null, 25m, 10, 2m)
         ]);
-        var request = new ShipmentRequest([new Parcel(int.MaxValue, 1, 1)], ShippingSpeed.Normal);
+        var request = new ShipmentRequest([new Parcel(int.MaxValue, 1, 1, 0)], ShippingSpeed.Normal);
 
         var quote = service.CalculateQuote(request);
 
@@ -72,8 +72,8 @@ public class ShippingServiceTests
     [Fact]
     public void OptionsWithoutUnlimitedSizeCanPriceEligibleParcel()
     {
-        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 1, 3m)]);
-        var request = new ShipmentRequest([new Parcel(0, 0, 0)], ShippingSpeed.Normal);
+        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 1, 3m, 1, 2m)]);
+        var request = new ShipmentRequest([new Parcel(0, 0, 0, 0)], ShippingSpeed.Normal);
 
         var quote = service.CalculateQuote(request);
 
@@ -84,8 +84,8 @@ public class ShippingServiceTests
     [Fact]
     public void OptionsWithoutUnlimitedSizeRejectParcelAtUpperLimit()
     {
-        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 10, 3m)]);
-        var request = new ShipmentRequest([new Parcel(10, 1, 1)], ShippingSpeed.Normal);
+        var service = new ShippingService([new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m)]);
+        var request = new ShipmentRequest([new Parcel(10, 1, 1, 0)], ShippingSpeed.Normal);
 
         Assert.Throws<InvalidOperationException>(() => service.CalculateQuote(request));
     }
@@ -132,12 +132,12 @@ public class ShippingServiceTests
     {
         // All options fit this parcel. Medium is cheapest, despite Small fitting
         // more closely and Large appearing first in the supplied options.
-        var parcel = new Parcel(5, 6, 7);
+        var parcel = new Parcel(5, 6, 7, 0);
         var service = new ShippingService([
-            new ShippingOption(ParcelCategory.Large, 100, 15m),
-            new ShippingOption(ParcelCategory.Small, 10, 3m),
-            new ShippingOption(ParcelCategory.Medium, 50, 2m),
-            new ShippingOption(ParcelCategory.XL, null, 25m)
+            new ShippingOption(ParcelCategory.Large, 100, 15m, 6, 2m),
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m),
+            new ShippingOption(ParcelCategory.Medium, 50, 2m, 3, 2m),
+            new ShippingOption(ParcelCategory.XL, null, 25m, 10, 2m)
         ]);
 
         var request = new ShipmentRequest([parcel], ShippingSpeed.Normal);
@@ -155,7 +155,7 @@ public class ShippingServiceTests
     {
         var service = new ShippingService();
 
-        var request = new ShipmentRequest([new Parcel(5, 6, 7)], ShippingSpeed.Normal);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7, 0)], ShippingSpeed.Normal);
 
         var quote = service.CalculateQuote(request);
 
@@ -168,10 +168,10 @@ public class ShippingServiceTests
     public void CalculateQuoteSelectsFreeEligibleOption(ShippingSpeed shippingSpeed)
     {
         var service = new ShippingService([
-            new ShippingOption(ParcelCategory.Small, 10, 3m),
-            new ShippingOption(ParcelCategory.Medium, 50, 0m)
+            new ShippingOption(ParcelCategory.Small, 10, 3m, 1, 2m),
+            new ShippingOption(ParcelCategory.Medium, 50, 0m, 3, 2m)
         ]);
-        var request = new ShipmentRequest([new Parcel(5, 6, 7)], shippingSpeed);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7, 0)], shippingSpeed);
 
         var quote = service.CalculateQuote(request);
 
@@ -193,7 +193,7 @@ public class ShippingServiceTests
     public void NormalShippingHasNoAdditionalCharge()
     {
         var service = new ShippingService();
-        var request = new ShipmentRequest([new Parcel(5, 6, 7)], ShippingSpeed.Normal);
+        var request = new ShipmentRequest([new Parcel(5, 6, 7, 0)], ShippingSpeed.Normal);
 
         var quote = service.CalculateQuote(request);
 

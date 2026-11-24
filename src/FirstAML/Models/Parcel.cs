@@ -1,11 +1,12 @@
 namespace FirstAML.Models;
 
-/// <summary>A parcel with nonnegative dimensions measured in whole centimetres.</summary>
-public sealed record Parcel(int Width, int Height, int Depth)
+/// <summary>A parcel with nonnegative whole-centimetre dimensions and whole-kilogram weight.</summary>
+public sealed record Parcel(int Width, int Height, int Depth, int WeightKg)
 {
     private int _width = ValidateDimension(Width, nameof(Width));
     private int _height = ValidateDimension(Height, nameof(Height));
     private int _depth = ValidateDimension(Depth, nameof(Depth));
+    private int _weightKg = ValidateWeight(WeightKg);
 
     public int Width
     {
@@ -26,6 +27,23 @@ public sealed record Parcel(int Width, int Height, int Depth)
     }
 
     public int MaxDimension => Math.Max(Width, Math.Max(Height, Depth));
+
+    public int WeightKg
+    {
+        get => _weightKg;
+        init => _weightKg = ValidateWeight(value);
+    }
+
+    private static int ValidateWeight(int weightKg)
+    {
+        if (weightKg < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(WeightKg), weightKg, "Parcel weight must not be negative.");
+        }
+
+        return weightKg;
+    }
 
     private static int ValidateDimension(int dimension, string parameterName)
     {

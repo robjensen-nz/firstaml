@@ -6,15 +6,33 @@ namespace FirstAML.Models;
 /// Every dimension must be less than this limit in centimetres.
 /// Must be positive when specified. Null means there is no upper limit.
 /// </param>
-/// <param name="Cost">The nonnegative delivery cost for this option.</param>
+/// <param name="Cost">The nonnegative base delivery cost for this option.</param>
+/// <param name="WeightLimitKg">The positive whole-kilogram weight allowance.</param>
+/// <param name="OveragePerKg">The nonnegative charge per kilogram above the allowance.</param>
 public sealed record ShippingOption(
     ParcelCategory Category,
     int? MaxDimensionExclusive,
-    decimal Cost)
+    decimal Cost,
+    int WeightLimitKg,
+    decimal OveragePerKg)
 {
     private ParcelCategory _category = ValidateCategory(Category);
     private int? _maxDimensionExclusive = ValidateSizeLimit(MaxDimensionExclusive);
     private decimal _cost = ValidateCost(Cost);
+    private int _weightLimitKg = ValidateWeightLimit(WeightLimitKg);
+    private decimal _overagePerKg = ValidateOverage(OveragePerKg);
+
+    public int WeightLimitKg
+    {
+        get => _weightLimitKg;
+        init => _weightLimitKg = ValidateWeightLimit(value);
+    }
+
+    public decimal OveragePerKg
+    {
+        get => _overagePerKg;
+        init => _overagePerKg = ValidateOverage(value);
+    }
 
     public ParcelCategory Category
     {
@@ -43,6 +61,28 @@ public sealed record ShippingOption(
         }
 
         return category;
+    }
+
+    private static int ValidateWeightLimit(int weightLimitKg)
+    {
+        if (weightLimitKg <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(WeightLimitKg), weightLimitKg, "Weight limit must be positive.");
+        }
+
+        return weightLimitKg;
+    }
+
+    private static decimal ValidateOverage(decimal overagePerKg)
+    {
+        if (overagePerKg < 0m)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(OveragePerKg), overagePerKg, "Overage rate must not be negative.");
+        }
+
+        return overagePerKg;
     }
 
     private static int? ValidateSizeLimit(int? sizeLimit)
