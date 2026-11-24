@@ -3,6 +3,18 @@
 A C# library for calculating the cost of sending an order of parcels, targeting
 .NET 10.
 
+## Run tests with Docker
+
+Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/),
+or use Docker Engine with the Compose plugin. From the repository root, run:
+
+```sh
+docker compose run --build --rm tests
+```
+
+## Transcripts
+Please see ./transcripts 
+
 ## Assumptions
 
 We support free shipping if configured in that way. Each shipping option has its
@@ -50,11 +62,4 @@ var quote = new ShippingService().CalculateQuote(request);
 Custom options require both weight settings, for example:
 `new ShippingOption(ParcelCategory.Small, 10, 3m, WeightLimitKg: 1, OveragePerKg: 2m)`.
 
-## Run tests with Docker
 
-Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/),
-or use Docker Engine with the Compose plugin. From the repository root, run:
-
-```sh
-docker compose run --build --rm tests
-```
