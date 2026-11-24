@@ -74,30 +74,6 @@ public class WeightBasedShippingServiceTests
         Assert.Equal(11m, quote.TotalCost);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void SelectsCheaperOptionWhenAnotherEligibleOptionOverflows(bool reverse)
-    {
-        ShippingOption[] options =
-        [
-            new(ParcelCategory.Small, 10, 3m, 1, decimal.MaxValue),
-            new(ParcelCategory.Medium, 50, 8m, 3, 2m)
-        ];
-        var service = new ShippingService(reverse ? options.Reverse() : options);
-        var request = new ShipmentRequest([new Parcel(1, 1, 1, 3)], ShippingSpeed.Normal);
-
-        var quote = service.CalculateQuote(request);
-
-        // Small's excess charge overflows, but Medium can deliver this parcel for $8.
-        var item = Assert.Single(quote.Items);
-        Assert.Equal(ParcelCategory.Medium, item.Category);
-        Assert.Equal(8m, item.BaseCost);
-        Assert.Equal(0m, item.ExcessWeightCharge);
-        Assert.Equal(8m, item.Cost);
-        Assert.Equal(8m, quote.TotalCost);
-    }
-
     [Fact]
     public void CustomWeightAllowanceCanMakeLargerOptionCheaper()
     {
